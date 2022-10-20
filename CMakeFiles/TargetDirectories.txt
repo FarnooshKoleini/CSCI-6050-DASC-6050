@@ -1,0 +1,3 @@
+/Users/koleinif20/Desktop/CVprojects/CMakeFiles/read-and-write-images.dir
+/Users/koleinif20/Desktop/CVprojects/CMakeFiles/edit_cache.dir
+/Users/koleinif20/Desktop/CVprojects/CMakeFiles/rebuild_cache.dir

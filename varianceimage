@@ -1,0 +1,6 @@
+import cv2
+import numpy as np
+img = cv2.imread('/Users/koleinif20/Desktop/CVprojects/goldendog.jpeg')
+from scipy import ndimage
+varianceMatrix = ndimage.generic_filter(img, np.var, size = 3) 
+print(varianceMatrix)

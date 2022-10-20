@@ -1,0 +1,119 @@
+## Python Imaging Library (PIL) Module to Change Contrast of an Image. 
+# require Image and ImageEnhance Classes from PIL module 
+# in order to Change the Contrast of an Image in Python.
+# Image class is used to perform some basic Operations on Images like Opening, Saving, Closing etc.
+# ImageEnhance Class is used to enhance the Properties of an Image like Brightness,Contrast, Color etc. 
+
+from PIL import Image,ImageEnhance
+import numpy as np
+import matplotlib.pyplot as plt
+import cv2 
+from scipy.stats import kurtosis, skew
+
+# import the original image
+imgdir = '/Users/koleinif20/Desktop/CVprojects/goldendog.jpeg'
+imgColor=Image.open("/Users/koleinif20/Desktop/CVprojects/goldendog.jpeg")
+
+# create an object for ImageEnhance.Contrast Class in order to change the Contrast 
+img_contr_obj=ImageEnhance.Contrast(imgColor)
+
+# factor is a floating-point number which enhances the Contrast of an Image.
+# factor can have several values. Hence, they can be written as follows
+# if factor > 1 Increases Contrast according to the given factor Values
+# if factor < 1 Decreases Contrast according to the given factor Values
+# and if the value of factor is 1 (i.e. factor=1) then the Contrast of the Image remains Same.
+#.2 = very low, .5 = low, 1 = medium, 3 = high, 10 = very high
+ 
+factor_contrast_color = [0.2, 0.5, 1, 3, 10] 
+par_contrast_color = np.array(factor_contrast_color)
+
+# creating images with different contrasts, parameters
+
+for i in par_contrast_color: 
+    e_img=img_contr_obj.enhance(i)
+    e_img.show()   # the Enhanced Image can be Viewed.  
+
+
+# creating the gray color of this image 
+
+img_contr_obj=ImageEnhance.Color(imgColor)
+factor_gray = 0.01
+e_img=img_contr_obj.enhance(factor_gray)
+e_img.show()
+
+# repeating the different contrast for gray image
+
+imgGray=Image.open("/Users/koleinif20/Desktop/CVprojects/goldendoggray.jpg")
+img_contr_obj=ImageEnhance.Contrast(imgGray)
+factor_contrast_gray = [0.2, 0.5, 1, 3, 10] 
+par_contrast_gray = np.array(factor_contrast_gray)
+for i in par_contrast_gray: 
+    e_img=img_contr_obj.enhance(i)
+    e_img.show()   # the Enhanced Image can be Viewed.  
+
+
+## Probability distribution for different channels and Sum of the probability for all the pixels 
+
+# Color image
+
+# Blue channel
+img = cv2.imread('/Users/koleinif20/Desktop/CVprojects/goldendog.jpeg')
+histg_blue = cv2.calcHist([img], [0], None, [256], [0 , 256])
+plt.plot(histg_blue)
+plt.xlabel('Intensity')
+plt.ylabel('Number of pixels')
+plt.title('Probablity distribution for color image, blue channel')
+plt.show()
+par_blue = np.array(histg_blue)
+total_blue = np.sum(par_blue)
+prob_blue = par_blue/total_blue
+print('Sum of the probabilities for different intesities color image, blue channel:',np.sum(prob_blue))
+
+# Green channel
+histg_green = cv2.calcHist([img], [1], None, [256], [0 , 256])
+plt.plot(histg_green)
+plt.xlabel('Intensity')
+plt.ylabel('Number of pixels')
+plt.title('Probablity distribution for color image, green channel')
+plt.show()
+par_green = np.array(histg_green)
+total_green = np.sum(par_green)
+prob_green = par_green/total_green
+print('Sum of the probabilities for different intesities color image, green channel:',np.sum(prob_green))
+
+# Red channel
+histg_red = cv2.calcHist([img], [2], None, [256], [0 , 256])
+plt.plot(histg_red)
+plt.xlabel('Intensity')
+plt.ylabel('Number of pixels')
+plt.title('Probablity distribution for color image, red channel')
+plt.show()
+par_red = np.array(histg_red)
+total_red = np.sum(par_red)
+prob_red = par_red/total_red
+print('Sum of the probabilities for different intesities color image, red channel:',np.sum(prob_red))
+
+# Gray image
+img_gray = cv2.imread('/Users/koleinif20/Desktop/CVprojects/goldendoggray.jpg')
+histg_gray = cv2.calcHist([img_gray], [0], None, [256], [0 , 256])
+plt.plot(histg_gray)
+plt.xlabel('Intensity')
+plt.ylabel('Number of pixels')
+plt.title('Probablity distribution for gray scale image')
+plt.show()
+par_gray = np.array(histg_gray)
+total_gray = np.sum(par_gray)
+prob_gray = par_gray/total_gray
+print('Sum of the probabilities for different intesities gray image, gray channel:',np.sum(prob_gray))
+
+
+## Mean, Variance, Third moment, and Fourth moment (Skewness and Kurtosis calculation) calculations
+
+img = cv2.imread('/Users/koleinif20/Desktop/CVprojects/goldendog.jpeg')
+mean = np.mean(img)
+print('Mean:',mean)
+var = np.var(img)
+print('Variance:',var)
+gray_img = cv2.imread(imgdir, cv2.IMREAD_GRAYSCALE)
+print('Third moment:',skew(gray_img,axis =None))
+print('Fourth moment:',kurtosis(gray_img,axis =None))

@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.0)
+project( read-and-write-images )
+find_package( OpenCV )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+add_executable( read-and-write-images read-and-write-images.cpp )
+target_link_libraries( read-and-write-images ${OpenCV_LIBS} )
