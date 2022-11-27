@@ -1,0 +1,271 @@
+---
+title: "WA 01"
+author: "Farnoosh Koleini"
+date: '2022-11-13'
+output: html_document
+---
+# Assignment Goal
+
+The overarching goal of this assignment is to deepen your understanding of spatial domain processing of digital images.
+
+# Instructions
+
+Please type your response to a question right below the question text. 
+
+# Questions
+
+1. Give a single intensity transformation function for spreading the intensities of an image so the lowest intensity is 0 and the highest is $L-1$.
+
+    **Answer**:
+
+Suppose we have an image here, let's the minimum value is 30 and the maximum value is 215, now we want to find a single transformation that it will take this image to an image and change the minimum value to 0 and the 215 will become 255 and all other values will be scaled proportionately. We call this function T(r). The idea here is we find an image and find the smallest value and then we're going to produce another image in which will be a copy of the first image except we are going to subtract 30 from each one of the pixels. So 30 here is the smallest and 215 is going to be $215 - 30= 185$ We find the maximum value. We're going to divide each values by $215- 30 = 185$ so all the values will be normalized and scaled. So we will have an image with pixel values range from 0 to 1. We're going to multiply each pixel values by 255 then we have an image which pixel values are going to be in a range from 0 to 255, and we can display the image. We're going to do how to test these steps. The R code would be: fImg <- I-min(I)/max(I-min(I)),
+final<- fImg * L-1 
+
+```{r}
+
+#| echo: true 
+#| code-fold: true
+#| code-summary: "Show the code"
+# highest intensity value
+L <- 256
+cat(sprintf("L= %d\n", L))
+cat("\n")
+#number of pixels should be a perfect square
+numPixels = 25
+numRows <- sqrt(numPixels)
+numCols <- numRows
+# number of pixels is the number of pixel values randomly selected from 0:255
+pixValues <- sample(0:255, numPixels, replace = TRUE)
+img <- matrix(pixValues, nrow = numRows, ncol=numCols, byrow = TRUE)
+cat("Original image: \n")
+img
+cat("\n")
+#minimum pixel value
+min <- min(img)
+cat(sprintf("Minimum pixel value= %d\n", min))
+cat("\n")
+#subtract the min pixel value from each pixel of the original image
+img2 <- img -min
+cat("original image - min:\n")
+img2
+cat("\n")
+# max pixel value in img2
+max <- max(img2)
+cat(sprintf("Max pixel value in original image: %d\n", max))
+cat("\n")
+#normalized image [0:1]
+img3 <- img2/max
+cat("Normalized image (0:1):\n")
+noquote(format(img3, digits=1))
+cat("\n")
+# min value in the normalized image
+cat(sprintf("Min pixel value in the normalized image: %d\n", round(min(img3))))
+cat("\n")
+# max value in the normalized image
+cat(sprintf("Max pixel value in the normalized image: %d\n", round(max(img3))))
+cat("\n")
+# normalized image (0:L-1)
+img4 <- img3 * (L-1)
+cat("Normalized image(0:L-1):\n")
+round(img4)
+cat("\n")
+# max value in the normalized image
+cat(sprintf("Max pixel value in the normalized image: %d\n", round(max(img4))))
+cat("\n")
+```
+
+
+
+    \newpage
+1. Exponentials of the form $e^{-\alpha r^2}$, with $\alpha$ a positive constant, are useful for constructing smooth intensity transformation functions. Start with this basic function and construct transformation functions having the general shapes shown below. The constants shown are input parameters, and your proposed transformations must include them in their specification. For simplicity in your answers, $L_0$ is not a required parameter in the third curve.
+
+    ![](./figures/expo)
+
+    **Answer**:
+    
+(a)  General form: $s = A . e^{-kr^{2}}$
+
+Here we need to find an equation T(r) which is the intensity transformation function. The original value is $L_{0}$ after transformation it would be $\frac{A}{2}$. This function is going to be $s = A . e^{-kr^{2}}$. Also, we have $r = L_{0}$ and $s = \frac{A}{2}$. So now we're going to substitute this equation. $s = A.e{-kr^{2}}$, 
+$\frac{A}{2} = A.e^{-kL_{0}^{2}}$ after cancelling A from both sides. $ln(0.5) = ln(e^{-kL_{0}^{2}})$ 
+$ln(0.5) = ln(-kL_{0}^2)$, so now we can say $k = \frac{-ln(0.5)}{L_0^{2}}$ and ultimately $k = 0.693$.
+Therefore the transformation function would be $s = T(r) = A e^{\frac{-0.693.r^{2}}{L_{0}^{2}}}$
+    
+Also there is a simple code for that:
+```{r}
+r <- seq(0,255, by=1)
+A <- 255
+L0 <- 80
+K <- 0.693/L0^2
+s <- A * exp(-K*r*r)
+plot(r, s, type = "l", col= "blue")
+```
+
+(b)  General form: $s = T(r) = B\left(1 - e^{-kr^2}\right)$
+
+Here $r = L_{0}$ and $s = \frac{B}{2}$ after cancellation B from both sides. $\frac{B}{2} = B(1 - e^{-kL_{0}^2})$, $0.5 = 1 - e^{-kL_{0}}$. Then subtract 1 from both side and ultimately similar to the previous one, we can take a log from both sides. It is going to be $-1 + 0.5 = 1 - e^{-kL_{0}} - 1$, then calculate k value which is $k = \frac {0.693}{L_0^2}$
+
+Also there is a simple code for that:
+```{r}
+r <- seq(1,255,by=1)
+B <- 255
+L0 <- 80
+K <- 0.693/L0^2
+s <- B * (1- exp(-K*r*r))
+plot(r,s,type = "l", col="blue")
+
+```
+
+(c)  General form: $
+
+Here the minimum value is going to be C and all the transformations change to D value. We simply write the equation here. $s = T(r) = (D - C)(1 - e^{-kr^2})+ C$. The minimum value is C so this is the reason we have it in the equation.
+
+
+
+    \newpage
+1. Propose a set of intensity-slicing transformations capable of producing all the bit planes of an 8-bit monochrome image. For example, a transformation function with the property $T(r) = 0$ for $r$ in the range $[0, 127]$, and $T(r) = 255$ for $r$ in the range $[128,255]$ produces an image of the $8^{th}$ bit plane in an 8-bit image.
+
+    **Answer**:
+    
+We have an image of the 8th bit plane, the idea here is when you have an integer from 0 through 127, and  for integers from 128 to 255 all of them would be 1. Based on this we can make a decision that we could make a decision that 8 8th bit would be one or 0 each pixel, therefore what we can do is writing the function which shows for an especial range of r from 0 to 127, the pixel values would be 0 and for the r in a range from 128 to 255, the pixel values would be 1. So now if you create an image with 2*2 pixels. As an example the pixel value is 12 so after transformation, it's gonna be 0 because it is in the range of 0 and 127. Also, the other one is 220 so after transformation, this pixel would be 1. In addition two others are, 59 and 32. So, after transformation, these values would be 0. What we said for 7th bit plane would be 4 different non-overlapping regions from 0 to 63, 64 to 127, 128 to 191, and lastly from 192 to 255. The pixel value after transformation for them would be 0, 1, 0, and 1. And jumping to 6th bit plane, we would have the 8 different non-overlapping regions. These non-overlapping regions would be from 0 to 31, 32 to 63, 64 to 95, 96 to 127, 128 to 159, 160 to 191, 192 to 223, and lastly 224 to 255. The values for all of these non-overlapping ranges would be 0, 1, 0, 1, 0, 1, 0, 1. 
+    
+    
+    \newpage
+1. The three images shown below were produced by blurring an original image of size $512 \times 512$. Blurring was done using square averaging masks of sizes $n=23,25$, and $45$, respectively. The vertical bars on the left lower part of the leftmost image and the rightmost are blurred, but a clear separation exists between them. However, the bars have merged in the center image, in spite of the fact that the mask that produced this image is significantly smaller than the mask that produced image the rightmost image. Explain the reason for this. Assume that the vertical bars are 5 pixels wide, 100 pixels high, and their separation is 20 pixels.
+
+
+    ![Blurred images](./figures/print-text-blurred.png)
+
+
+    **Answer**:
+    
+We have an original image where the original image has these bras. They are quite separated from each other. We're going to apply a filter 23* 23 averaging mask, 25* 25, and 45* 45 size of the mask. What we notice here is when we apply them first the vertical bars on the left lower part of the leftmost image and the rightmost are blurred using 45 averaging mask. If we look at the bars, There are 5, 20, 5, 20, 5, 20 bars. When we place a filter size 25 * 25. The filter response is going to be, all pixels some portion of black. In other words, the space between the bars is going to be like salt and pepper noise. The geometry is such that the bar thickness and spaces between them. 
+    
+    
+    
+    \newpage
+1. Image histograms.
+
+    (a) What effect would setting to zero the lower-order bit planes have on the histogram of an image in general?
+    (b) What would be the effect on the histogram if we set to zero the higher-order bit planes instead?
+
+    **Answer**:
+
+This problem is based on the binary approach. We have an image with pixel value. By setting the lower values to zero, for example if we set the right bit to 0, won't have any odd numbers. The odd integers will be mapped. There will be a gaps between histogram bars. Just by setting the most significant bit to 0, you're actually saying the integer values, they all get mapped to 0 to 127. Therefore, when we plot the histograms, it won't have any values in the range of 127 to 255. Ans all the histograms are mapped from 0 to 127. 
+    
+    
+    
+    \newpage
+1. In some applications it is useful to model the histogram of input images as Gaussian probability density functions of the form
+
+$$
+        P_r(r) = \frac{1}{\sqrt{2 \pi}\sigma} e^{-\frac{(r-m)^2}{2\sigma^2}}
+$$
+
+    where $m$ and $\sigma$ are the mean and standard deviation of the Gaussian PDF. The approach is to let $m$ and $\sigma$ be measures of average intensity and contrast of a given image. What is the transformation function you would use for histogram equalization?
+
+    **Answer**:
+    
+This problem doesn't have any specific solution. When we want to calculate the probability of random distribution between two values. To do histogram equalization, we need to find cumulative distribution function. To do this we need to integrate. When we look at the Gaussian distribution, the support for the general case would be from negative infinity to plus infinity. So we may actually have depending on where the mean is the negative values. By making some assumptions , my Gaussian assumption would be different where the variance is concentrated in a especial region. Also, another argue would be we have positive values to $ +\infty $. For example an image with pixel values from 0 to 255; the distribution has a small variance. We can simply ignore the area in the curve. 
+    
+    
+    \newpage
+1. An image with intensities in the range $[0, 1]$ has the Probability Density Function (PDF) $p_r(r)$ shown below. It is desired to transform the intensity levels of this image so that they will have the specified $p_z(z)$ shown. Assume continuous quantities and find the transformation (in terms of $r$ and $z$) that will accomplish this.
+
+    <!-- 
+    This figure is generated by the Rmd code below. The figure gets distorted in the resulting PDF document. Saving the figure to disk and then inserting through the one-line code below preserves quality and aspect ratio. 
+    -->
+    
+    ![](./figures/pdf-of-original-and-transformed-image.png)
+
+
+```{r, echo=FALSE}
+
+library(latex2exp)
+    # two plots in one row
+    par(mfrow=c(1,2))    
+
+    x <- c(1, 0)
+    y <- c(0, 2)
+    plot(x,y, type="l", col="blue", cex.main=0.75, cex.lab=0.75, cex.axis=0.75, main=paste("Probability Density of the","\nOriginal Image"), xlab="Intensity Value (r)", ylab=TeX(r'($p_r(r)$)'), xlim=c(0,3), ylim=c(0, 3))    
+
+    x <- c(0, 1, 1)
+    y <- c(0, 2, 0)
+    plot(x,y, type="l", col="red", cex.main=0.75, cex.lab=0.75, cex.axis=0.75, main=paste("Probability Density of the","\nTranformed Image"), xlab="Intensity Value (z)", ylab=TeX(r'($p_z(z)$)'), xlim=c(0,3), ylim=c(0, 3))
+    
+```
+-->
+
+    **Answer**:
+    
+The idea here is if we recall something we learned before during the semester. We have an image which is represented by r and we have a transformation function called T(r). This function will give us a pixel value s. So if we suppose we have a source and an ultimate target here. And to refer the pixels in target, we can use z. We're going to do histogram equalization which we call it G(z). So the resulting pixel value would be v. If they are very close to each other, we're going to say the invertable function would be $G_{v}^{-1}$ 
+
+To find the equation for the first pdf it would be $-2w + 2$ and for the right one after transformation would be $2w$. So the calculations would be as follows:
+
+
+$$
+
+s = T(r) = \int_{0}^{r} P_r(w)dw = \int_{0}^{r} (-2w + 2)dw = -r^2 + 2r 
+
+
+$$
+
+$$
+
+v = G(z) = \int_{0}^{r} P_z(w)dw = \int_{0}^{r} zw dw = z^2
+
+$$
+So if we want to go from v to z, $z = G^{-1}(v) = \pm \sqrt v$ and v is the closest match with s. 
+
+    
+    \newpage
+1. Two images, $f(x, y)$ and $g(x, y)$, have histograms $h_f$ and $h_g$. Give the conditions under which you can determine the histograms of
+
+    \begin{enumerate}[(a)]
+        \item $f(x, y) + g(x, y)$
+        \item $f(x,y) - g(x,y)$
+        \item $f(x, y) \times g(x, y)$
+        \item $f(x, y) \div  g(x, y)$
+    \end{enumerate}
+
+    in terms of $h_f$ and $h_g$. Explain how to obtain the histogram in each case.
+
+    **Answer**:
+    
+In the first case we are adding two pixel values, the second one we are subtracting them from each other, the third one we are multiplying the pixels, and lastly we are dividing the pixel values. We want to find the histogram for the new image which is adding the $f(x,y)$ and $g(x,y)$. The assumption here is one of these images is constant image or both of them constant. We can use some codes to create the histograms. Based on the shape of the histograms.   
+    
+If we have an image 50 * 50 pixels. After subtracting the constant image from the original one. For the first condition which is addition, for example the original mean was 150 once we add 50 to the value, this going to be 200, by visualization, the pixels move to the right. The subtraction condition the mean value and the other pixel values will move to the left. Condition 3 which is multiplication condition would be a different results, we need to scale the values back because after the multiplication the values would be high values but the shape of the histograms would be the different shape and moved to the right. The last one would be the division condition by applying that to the values, the plot of the histograms would be different and moved to the left. 
+    
+    
+    \newpage
+1. The two images shown below are quite different, but their histograms are the same. Suppose that each image is blurred with a $3 \times 3$ averaging mask.
+
+    ![](./figures/checker)
+    
+    (a) Would the histograms of the blurred images still be equal? Explain.
+
+    (b) If your answer is no, sketch the two histograms.
+
+
+    **Answer**:
+    
+We have two images one on the left which half of it is black and the picture in the right a black and white squared image. The histograms are going to be identical, we have only two pixel values here, 0 and 255. When we do an averaging filter, what happens is the area would be pixels with different effects. Here it is a 3 * 3 averaging filter. Likewise in the second row and first row, we do not have a border effect. After calculations It is easily verified that the sum of the numbers on the number of pixels is $N^2$. 
+    
+    
+    \newpage
+1. The implementation of linear spatial filters requires moving the center of a mask throughout an image and, at each location, computing the sum of products of the mask coefficients with the corresponding pixels at that location. A lowpass filter can be implemented by setting all coefficients to 1, allowing use of a so-called \emph{box-filter} or \emph{moving-average} algorithm, which consists of updating only the part of the computation that changes from one location to the next.
+
+    (a) Formulate such an algorithm for an $n \times n$ filter, showing the nature of the computations involved and the scanning sequence used for moving the mask around the image.
+    
+    **Answer**:
+
+When we applying a filter there is something we call filtering coefficient. If the coefficient are 1 the multiplication would be: $R_{new} = R_{old} - C_{1} + C_{3}$
+If we have n*n mask, what we need is n-1 additions to get $C_{3} = n - 1$. Total addition is going to be $n-1 + 2 = n+1$ 
+
+
+    
+    (b) The ratio of the number of computations performed by a brute-force implementation to the number of computations performed by the box-filter algorithm is called the **computational advantage**. Obtain the computational advantage in this case and plot it as a function of $n$ for $n > 1$. The $\frac{1}{n^2}$ scaling factor is common to both approaches, so you need not consider it in obtaining the computational advantage. Assume that the image has an outer border of zeros that is wide enough to allow you to ignore border effects in your analysis.
+
+    **Answer**:
+    
+The computational advantage would be $\frac {n^{2}-1}{n+1} = n-1$ For example if the filter is a 5 * 5 filter, the efficiancy linearly increases.   
+    
